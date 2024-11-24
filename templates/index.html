@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload and Results</title>
+    <style>
+        h1 {
+            text-align: center;
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Arial, sans-serif;
+            font-size: 2rem;
+            color: #333;
+        }
+        /* Style the form container */
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px; /* Space between input and button */
+            margin-top: 50px;
+        }
+
+        /* Style the file input */
+        input[type="file"] {
+            padding: 10px;
+            border: 2px solid #a0acb9; /* Border color */
+            border-radius: 5px; /* Rounded edges */
+            font-size: 1.5rem;
+            cursor: pointer; /* Pointer cursor for interactivity */
+            outline: none;
+            background-color: #f9f9f9;
+            
+        }
+
+       
+
+        /* Style the button */
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff; /* White text */
+            background-color: #007BFF; /* Primary blue */
+            border: none;
+            border-radius: 5px; /* Rounded edges */
+            cursor: pointer;
+            
+        }
+
+               
+        #spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        #results {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <h1 >Upload File and Get Customer Segmentation Results  
+    <form id="upload-form" enctype="multipart/form-data">
+        
+        <input type="file" id="file-upload" name="file">
+        <button type="submit">Submit</button>
+    </form>
+    </h1>
+    <div id="spinner">Loading...</div>
+    <div id="results"></div>
+
+    <script>
+        function handleSubmit(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            var file = document.getElementById("file-upload").files[0];
+            var formData = new FormData();
+            formData.append("file", file);
+
+            var spinner = document.getElementById("spinner");
+            spinner.style.display = "block";
+
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/predict");
+            xhr.send(formData);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                    document.getElementById("results").innerHTML = "";
+
+                    var response = JSON.parse(xhr.responseText);
+
+                    var amountImg = document.createElement("img");
+                    amountImg.src = response.monetary_img;
+                    amountImg.style.width = "30%"; // Set the width of the image element
+
+                    var freqImg = document.createElement("img");
+                    freqImg.src = response.frequency_img;
+                    freqImg.style.width = "30%"; // Set the width of the image element
+
+                    var recencyImg = document.createElement("img");
+                    recencyImg.src = response.recency_img;
+                    recencyImg.style.width = "30%"; // Set the width of the image element
+
+                    spinner.style.display = "none";
+
+                    var imagesDiv = document.createElement("div");
+                    imagesDiv.style.display = "flex";
+                    imagesDiv.style.flexWrap = "wrap";
+                    imagesDiv.style.marginTop = "25%";
+                    imagesDiv.style.marginBottom = "10%";
+                    imagesDiv.style.justifyContent = "space-between";
+                    imagesDiv.style.alignItems = "center";
+                    imagesDiv.style.width = "100%";
+
+                    imagesDiv.appendChild(amountImg);
+                    imagesDiv.appendChild(freqImg);
+                    imagesDiv.appendChild(recencyImg);
+
+                    document.getElementById("results").appendChild(imagesDiv);
+                }
+            };
+        }
+
+        // Attach the submit event handler to the form
+        document.getElementById("upload-form").addEventListener("submit", handleSubmit);
+    </script>
+</body>
+</html>
